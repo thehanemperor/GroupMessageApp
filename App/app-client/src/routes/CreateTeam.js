@@ -16,9 +16,9 @@ class CreateTeam extends React.Component {
 
     onSubmit =async () => {
         const {name} = this;
-        const response = null
+        let response = null
         try{
-            await this.props.mutate({
+            response = await this.props.mutate({
                 variables:{name}
             })
     

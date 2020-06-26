@@ -6,7 +6,7 @@ export const createTokens = async (user,secret,secret2) => {
     console.log('secret',secret)
     const createToken = jwt.sign(
         {
-            user: _.pick(user,['id'])
+            user: _.pick(user,['id','username'])
         },
         secret,
         {
