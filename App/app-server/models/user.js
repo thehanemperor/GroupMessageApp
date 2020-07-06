@@ -53,12 +53,18 @@ export default (sequelize, DataTypes) => {
   
     User.associate =  (models)=> {
         User.belongsToMany(models.Team,{
-            through:'member',
-            foreignKey: 'userId',
+            through:models.Member,
+            foreignKey: {
+                name:'userId',
+                field: 'user_id'
+            }
         });
         User.belongsToMany(models.Channel,{
             through:'channel_member',
-            foreignKey: 'userId',
+            foreignKey: {
+                name:'userId',
+                field: 'user_id'
+            },
         });
 
         

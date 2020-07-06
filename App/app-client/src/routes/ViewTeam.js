@@ -1,24 +1,61 @@
 import React from 'react'
 
-
+import {Redirect} from 'react-router-dom'
 import Header from '../components/Header'
 import Messages from '../components/Messages'
 import SendMessage from '../components/SendMessage'
 import AppLayout from '../components/AppLayout'
 import Sidebar from '../containers/Sidebars'
+import { graphql } from 'react-apollo'
+import { allTeamsQuery } from '../graphql/team'
+import findIndex from 'lodash/findIndex'
 
-export default ()=> (
+const ViewTeam= ({data:{loading,allTeams,inviteTeams},match:{params:{teamId,channelId}}})=> {
+    if (loading){
+        return null
+    }
+    
+    // if (!inviteTeams && !allTeams){
+    //     var teams = allTeams
+    // }else{
+    //     var teams = [...allTeams, ...inviteTeams]
+    // }
+
+    const teams = [...allTeams,...inviteTeams]
+    
+    
+    if (!teams.length){
+        return (<Redirect to="/create-team"></Redirect>)
+    }
+    const teamIdInteger = parseInt(teamId,10);
+    const channelIdInteger = parseInt(channelId,10)
+    
+
+    const teamIdx = teamIdInteger ? findIndex(teams,['id',teamIdInteger]):0;
+    const team = teamIdx=== -1 ? teams[0]: teams[teamIdx]
+
+    const channelIdx = channelIdInteger? findIndex(team.channels,['id',channelIdInteger]):0;
+    const channel = channelIdx === -1?  team.channels[0]: team.channels[channelIdx]
+    
+    return (
     <AppLayout>
-        <Sidebar currentTeamId={1}></Sidebar>
-        <Header channelName = "general"></Header>
-        <Messages>
-            <ul class="message-list">
-                <li></li>
-                <li></li>
-            </ul>
+        <Sidebar teams={teams.map(t=>({
+                id: t.id,
+                letter: t.name.charAt(0).toUpperCase(),
+            }))} team= {team}></Sidebar>
+        {channel && <Header channelName = {channel.name}></Header>}
+        {channel && (
+            <Messages channelId = {channel.id}>
+                <ul class="message-list">
+                    <li></li>
+                    <li></li>
+                </ul>
 
-        </Messages>
-        <SendMessage channelName="genearl"></SendMessage>
+            </Messages>
+        )}
+        {channel && <SendMessage channelName={channel.name}></SendMessage>}
 
-    </AppLayout>
-)
+    </AppLayout>)
+}
+
+export default graphql(allTeamsQuery)(ViewTeam);

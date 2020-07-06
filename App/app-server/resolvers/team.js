@@ -5,17 +5,80 @@ import requiresAuth from '../permissions'
 export default {
     Query:{
         allTeams: requiresAuth.createResolver( async(parent,args ,{models,user}) =>
-         
-             models.Team.findAll({owner: user.id},{raw:true})),
+            models.Team.findAll({ where: { owner: user.id} },{raw:true})),
+        
+        inviteTeams: requiresAuth.createResolver(async (parent,args, {models,user})=>
+            models.sequelize.query("select * from teams join members on id = team_id where  user_id = ?",
+                {   
+                    replacements: [user.id],
+                    model: models.Team
+                })),
+        
+
+        // inviteTeams: requiresAuth.createResolver(async (parent,args, {models,user})=>
+        //     models.Team.findAll(
+        //         {
+        //             include:[
+        //                 {
+        //                     model: models.User,
+        //                     where: { id: user.id},
+        //                 }
+        //             ]
+        //         },
+        //         {raw: true}
+        //     )
+        // ),
 
     },
     Mutation: {
+        addTeamMember: requiresAuth.createResolver(
+            async(parent,{email,teamId} ,{models,user}) =>{
+                
+                console.log('team.js email',email)
+                try{
+                    const teamPromise = await models.Team.findOne({where:{id: teamId}},{raw: true})
+                    const userToAddPromise = await models.User.findOne({where:{email}},{raw: true})
+                    const [team,userToAdd] = await Promise.all([teamPromise,userToAddPromise])
+                    if (team.owner !== user.id){
+                        return {
+                            ok: false,
+                            errors: [{path:'email',message: 'You cannot add members to the team'}]
+                        }
+                    }
+                    if (!userToAdd){
+                        console.log('cannot find')
+                        return {
+                            ok: false,
+                            errors: [{path:'email',message: 'cannot find user'}]
+                        }
+                    }
+
+                    await models.Member.create({userId: userToAdd.id,teamId})
+                    return {
+                        ok: true
+                    }
+                }catch (err){
+                    console.log('resolver team.js',err);
+                    return {
+                        ok:   false,
+                        errors: formatErrors(err,models)
+                        
+                    }
+                }
+            }),
         //createTeam: (parent,args,{models}) => models.
         createTeam: requiresAuth.createResolver( async(parent,args ,{models,user}) =>{
             try{
-                await models.Team.create({...args,owner:user.id});
+                const response = await models.sequelize.transaction( async ()=>{
+                    const team = await models.Team.create({...args,owner:user.id});
+                    // to increase speed we omit await
+                    await models.Channel.create({name:'general',public:true, teamId: team.id})
+                    return team
+                })
+                
                 return {
-                    ok: true
+                    ok: true,
+                    team:response
                 }
             }catch (err){
                 console.log('resolver team.js',err);
@@ -29,7 +92,7 @@ export default {
        
     },
     Team: {
-        channels: ({id},args,{models})=> models.Channel.findAll({teamId: id})
+        channels: ({id},args,{models})=> models.Channel.findAll({where: {teamId: id}})
         
     } 
     
