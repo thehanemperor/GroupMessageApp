@@ -11,6 +11,8 @@
     "apollo-link": "1.0.0",
     "apollo-link-context": "1.0.0",
     "apollo-link-http": "1.0.0",
+    "apollo-link-ws": "1.0.0",
+    "apollo-utilities": "1.0.1",
     "cors": "^2.8.5",
     "formik": "0.9.4",
     "graphql": "0.11.7",
@@ -26,7 +28,8 @@
     "react-scripts": "3.4.1",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.2",
-    "styled-components": "^5.1.1"
+    "styled-components": "^5.1.1",
+    "websocket-extensions": "0.1.4"
   },
   "scripts": {
     "start": "react-scripts start",

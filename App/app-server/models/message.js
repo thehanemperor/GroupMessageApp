@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
     const Message = sequelize.define('message', {
-        name:{
+        text:{
             type: DataTypes.STRING,
             
         },
@@ -11,10 +11,14 @@ export default (sequelize, DataTypes) => {
     Message.associate =  (models)=> {
         Message.belongsTo(models.Channel,{
             
-            foreignKey: 'channelId',
+            foreignKey: {
+                name:'channelId',
+                field: 'channel_id'},
         });
         Message.belongsTo(models.User,{
-            foreignKey: 'userId'
+            foreignKey: {
+                name: 'userId',
+                field:'user_id'}
         });
      
     };

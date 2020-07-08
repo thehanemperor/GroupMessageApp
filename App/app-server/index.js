@@ -12,6 +12,14 @@ import cors from 'cors'
 import jwt  from 'jsonwebtoken'
 import {refreshTokens}  from './auth'
 
+
+import {createServer } from 'http'
+import { execute, subscribe} from 'graphql'
+import { PubSub} from 'graphql-subscriptions'
+import { SubscriptionServer } from 'subscriptions-transport-ws'
+import { create } from 'domain'
+
+
 const SECRET = 'jsidfniejisernfidsner'
 const SECRET2 = 'jifjdisnfiesseresder'
 
@@ -67,6 +75,22 @@ app.use(
 
 app.use('/graphiql',graphiqlExpress({endpointURL:graphqlEndpoint}));
 
+const server = createServer(app)
+
 models.sequelize.sync({force: false}).then(()=> {
-    app.listen(8080)
+    server.listen(8080,()=>{
+        new SubscriptionServer(
+            {
+                execute,
+                subscribe,
+                schema: schema,
+            },
+            {   
+                server,
+                path: '/subscriptions'
+
+            }
+        )
+    })
 })
+
