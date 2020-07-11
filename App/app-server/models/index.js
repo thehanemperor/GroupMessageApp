@@ -4,6 +4,8 @@ const sequelize = new Sequelize("slack","root","root",{
     dialect: 'postgres',
     operatorsAliases: Sequelize.Op,
     define : {
+      charset: 'utf8',
+      collate: 'utf8_general_ci', 
         underscored: true
     }
 })

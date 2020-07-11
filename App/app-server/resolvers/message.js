@@ -1,9 +1,28 @@
 import requireAuth from '../permissions'
+import { PubSub, withFilter} from 'graphql-subscriptions'
+const pubsub = new PubSub();
 
+const NEW_CHANNEL_MESSAGE ='NEW_CHANNEL_MESSAGE'
 
 export default {
+    Subscription:{
+        newChannelMessage: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator(NEW_CHANNEL_MESSAGE),
+                (payload,args) => payload.channelId === args.channelId
+            )
+        }
+    },
+
     Message: {
-        user :({userId },args,{ models }) => models.User.findOne({ where:{ id : userId } },{raw: true})
+        user :({user,userId },args,{ models }) => {
+            if (user){
+                return user
+            }
+
+            return models.User.findOne({ where:{ id : userId } },{raw: true})
+        }
+        
     },
     Query:{
         messages: requireAuth.createResolver(async(parent,{channelId},{models})=> 
@@ -14,10 +33,29 @@ export default {
     Mutation: {
         createMessage: requireAuth.createResolver(async (parent,args,{models,user}) => {
             try{
-                await models.Message.create({
+                const message= await models.Message.create({
                     ...args,
                     userId : user.id
                 })
+                
+                const asyncFetch = async () => {
+                    const currentUser = await models.User.findOne({
+                        where: {
+                            id: user.id
+                        }
+                    })
+
+                    pubsub.publish(NEW_CHANNEL_MESSAGE,
+                        {
+                            channelId: args.channelId,
+                            newChannelMessage: {
+                                ...message.dataValues,
+                                user: currentUser.dataValues
+                            }
+                        })
+                }
+                asyncFetch()
+
                 return true
             } catch(err){
                 console.log(err)

@@ -15,7 +15,6 @@ import {refreshTokens}  from './auth'
 
 import {createServer } from 'http'
 import { execute, subscribe} from 'graphql'
-import { PubSub} from 'graphql-subscriptions'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { create } from 'domain'
 
@@ -77,7 +76,7 @@ app.use('/graphiql',graphiqlExpress({endpointURL:graphqlEndpoint}));
 
 const server = createServer(app)
 
-models.sequelize.sync({force: false}).then(()=> {
+models.sequelize.sync({force: true}).then(()=> {
     server.listen(8080,()=>{
         new SubscriptionServer(
             {

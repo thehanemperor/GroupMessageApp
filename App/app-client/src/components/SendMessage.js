@@ -47,12 +47,15 @@ export default compose(
     withFormik({
     mapPropsToValues: () => ({ message :''}),
     handleSubmit: async(values,{props:{channelId,mutate},setSubmitting , resetForm})=> {
-        console.log(values.message)
+        
         if (!values.message || !values.message.trim()){
             setSubmitting(false)
         }
-    
+    console.log('message type from sendMessage.js: ',typeof(values.message))
+    const messageUTF8 = JSON.parse(JSON.stringify(values.message))
+    console.log('message type from sendMessage.js: ',typeof(messageUTF8),messageUTF8)
     await mutate({
+        
         variables : {channelId: channelId,text:values.message},
         
         

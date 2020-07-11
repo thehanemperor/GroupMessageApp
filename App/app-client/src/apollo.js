@@ -42,9 +42,11 @@ const afterwareLink = new ApolloLink((operation,forward)=> {
 const httpLinkWithMiddleware = afterwareLink.concat( middlewareLink.concat(httpLink))
 
 
-
+const sublink="ws://localhost:8080/subscriptions"
+//const sublinkBackUp ='ws://192.168.1.6:8080/subscriptions'
 const wsLink = new WebSocketLink({
-    uri: 'ws://localhost:8080/subscriptions',
+
+    uri: sublink,
     options: {
         reconnect: true
     }

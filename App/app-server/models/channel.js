@@ -8,9 +8,10 @@ export default (sequelize, DataTypes) => {
             },
             
         },
-        
-      
-    });
+    },{
+        charset: 'utf8',
+        collate: 'utf8_unicode_ci'
+      });
   
     Channel.associate =  (models)=> {
         Channel.belongsTo(models.Team,{

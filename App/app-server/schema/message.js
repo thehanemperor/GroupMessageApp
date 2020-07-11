@@ -8,6 +8,9 @@ export default `
     
     }
 
+    type Subscription{
+        newChannelMessage(channelId: Int!): Message!
+    }
 
     type Query {
         messages(channelId: Int!): [Message!]!

@@ -6,7 +6,10 @@ export default (sequelize, DataTypes) => {
         },
         
       
-    });
+    },{
+        charset: 'utf8',
+        collate: 'utf8_unicode_ci'
+      });
   
     Team.associate =  (models)=> {
         Team.belongsToMany(models.User,{
