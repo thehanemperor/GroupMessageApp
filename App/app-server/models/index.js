@@ -15,6 +15,7 @@ const models = {
     Member: sequelize.import('./member'),
     Message : sequelize['import']('./message'),
     Team : sequelize['import']('./team'),
+    DirectMessage: sequelize.import('./directMessage')
 
 }
 

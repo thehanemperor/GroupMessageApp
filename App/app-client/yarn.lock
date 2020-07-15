@@ -2188,10 +2188,10 @@ apollo-link-dedup@1.0.0:
   resolved "https://registry.yarnpkg.com/apollo-link-dedup/-/apollo-link-dedup-1.0.0.tgz#f0134ac495cc42e7e43dfafe7126645baa1e03bc"
   integrity sha512-9ARdvKl/Y1Cgz+Hx7IMPYToOiwD+88F5wcRs/RS2gmkNivy9qfDhGddTvEvi01urBYaXSKWuOL5xVU4Hqy2Hbg==
 
-apollo-link-http@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/apollo-link-http/-/apollo-link-http-1.0.0.tgz#0450be89ae7e080722383c302f07135d364bc749"
-  integrity sha512-lwJE+N0qeluChjya807T0s7tWgNdXXkxKjOBLFL7Rd819mv5HpJ+liQYOsK7B2bBrjo8TlIhswHKe0ifKmSy4w==
+apollo-link-http@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/apollo-link-http/-/apollo-link-http-1.1.0.tgz#a85cc43d9a5286bb54ac32213f7a16bef3554ae4"
+  integrity sha512-K4ObtVTj6/15tqFgFEThBEFLWzVSKFq9bHvFvO099h+34qreTKSJ75rUFx20Aso0Kbtlr9aT3WBqUEjuiqLcCA==
 
 apollo-link-ws@1.0.0:
   version "1.0.0"
@@ -4937,10 +4937,10 @@ form-data@~2.3.2:
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
 
-formik@0.9.4:
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/formik/-/formik-0.9.4.tgz#e284620539c54d7d052c1950230b1e44c5acc6a4"
-  integrity sha512-36X4LdwFKeICqxG0LK/iRvlzwjOogplWoWCenjDy/L3Wju2iBrtHQMSUrB/qLYCdgYQiXmNwKYRXXDwQqtdK9w==
+formik@0.10.3:
+  version "0.10.3"
+  resolved "https://registry.yarnpkg.com/formik/-/formik-0.10.3.tgz#ec71de2e29c026a65384e6d6b441718968cf90ac"
+  integrity sha512-fUOTQQ3kGa1ttNNa1GK51ieN1MLsX7D/5MNOXCs5oolQchRwadbBz1NgoOjFPg2uJiRlwioGnlCSUeEwDr+BjQ==
   dependencies:
     lodash.isequal "4.5.0"
     prop-types "^15.5.10"
@@ -7247,10 +7247,10 @@ mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mobx-react@4.3.3:
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/mobx-react/-/mobx-react-4.3.3.tgz#4ad76c03d1e942b431e942f9ea18df0756771655"
-  integrity sha1-StdsA9HpQrQx6UL56hjfB1Z3FlU=
+mobx-react@4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/mobx-react/-/mobx-react-4.3.4.tgz#58cda105b8018f9bf87bd6de333ac5eb0d5c9dfe"
+  integrity sha1-WM2hBbgBj5v4e9beMzrF6w1cnf4=
   dependencies:
     hoist-non-react-statics "^2.3.1"
 
@@ -8984,10 +8984,10 @@ raw-body@2.4.0:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-react-apollo@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-apollo/-/react-apollo-2.0.0.tgz#c9cbda2956585d422800f1686d870258637170f8"
-  integrity sha512-jUhp/fJP41OxLeiYPsip+9b27TBdsVAS4vT9/TlVpwi+dNYRjKgf3v/G7kqbnmtt5i8X+6D2OUZGC49UEPMdlg==
+react-apollo@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-apollo/-/react-apollo-2.0.1.tgz#43997db9f294d81bd229eb705944fb36d5164607"
+  integrity sha512-iBfyxqrAoC01Z3d6l0AP9lOaJ7tR52dK9jKuCANQfhE3WvDFFVV+bUz5LjbSCGpVdEw+5gCmRAv6xPt3vQ1XZg==
   dependencies:
     apollo-link "^1.0.0"
     hoist-non-react-statics "^2.2.0"

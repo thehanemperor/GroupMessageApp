@@ -3,7 +3,7 @@ import {Form,Input,Button, Modal} from 'semantic-ui-react'
 import {withFormik} from 'formik'
 import gql from 'graphql-tag'
 import {compose, graphql} from 'react-apollo'
-import {allTeamsQuery} from '../graphql/team'
+import { meQuery } from '../graphql/team'
 import findIndex from 'lodash/findIndex'
 
 const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSubmit,isSubmitting })=> (
@@ -77,14 +77,14 @@ export default compose(
                     return
                 }
 
-                const data = store.readQuery({query:allTeamsQuery})
+                const data = store.readQuery({query:meQuery})
                 console.log('addchannelModal.js update cache data',data)
 
-                const teamIdx = findIndex(data.allTeams,['id',teamId])
+                const teamIdx = findIndex(data.me.teams,['id',teamId])
                 const deepClone = JSON.parse(JSON.stringify(data));
                 
-                deepClone.allTeams[teamIdx].channels.push(channel);
-                store.writeQuery({query: allTeamsQuery,data:deepClone})
+                deepClone.me.teams[teamIdx].channels.push(channel);
+                store.writeQuery({query: meQuery,data:deepClone})
             },
         })
         onClose()

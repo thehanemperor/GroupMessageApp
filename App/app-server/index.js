@@ -72,17 +72,40 @@ app.use(
     }))
 );
 
-app.use('/graphiql',graphiqlExpress({endpointURL:graphqlEndpoint}));
+app.use('/graphiql',
+        graphiqlExpress(
+            {
+                endpointURL:graphqlEndpoint,
+                subscriptionsEndpoint: 'ws://localhost:8080/subscriptions'
+                
+            }
+        )
+    );
 
 const server = createServer(app)
 
-models.sequelize.sync({force: true}).then(()=> {
+models.sequelize.sync({force: false}).then(()=> {
     server.listen(8080,()=>{
         new SubscriptionServer(
             {
                 execute,
                 subscribe,
                 schema: schema,
+                onConnect: async ({token,refreshToken},WebSocket)=> {
+                    if (token && refreshToken){
+                        let user = null
+                        try{
+                            const {user} = jwt.verify(token,SECRET)
+                            return { models:models,user:user}
+                        }catch (err){
+                            const newTokens = await refreshTokens(token,refreshToken,models,SECRET, SECRET2)
+                            return  { models:models, user: newTokens.user }
+                        }
+
+                    }
+                    //console.log('throw error',token)
+                    return { models:models,}
+                }
             },
             {   
                 server,
