@@ -31,3 +31,20 @@ export const requireTeamAccess = createResolver(async (parent,{ channelId }, { u
     }
 
 })
+
+export const directMessageSubscription = createResolver(async (parent,{ teamId, userId }, { user, models })=>{
+    if (!user || !user.id){
+        throw new Error('Not authenticated')
+    }
+    // check if part of the team
+    const members = await models.Member.findAll({ 
+        where: { teamId: teamId, 
+                [models.sequelize.Op.or]: [{userId: userId} , {userId: user.id}]
+        }
+    })
+
+    if (members.length !== 2){
+        throw new Error("user might not in the team ")
+    }
+
+})

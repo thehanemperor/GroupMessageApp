@@ -1,7 +1,22 @@
-import requireAuth, {requireTeamAccess} from '../permissions'
+import requireAuth, { directMessageSubscription } from '../permissions'
+import pubsub from '../pubsub'
+import {withFilter} from 'graphql-subscriptions'
+
+const NEW_DIRECT_MESSAGE = 'NEW_DIRECT_MESSAGE'
+
 
 export default {
-    
+    Subscription:{
+        newDirectMessage: {
+            subscribe: directMessageSubscription.createResolver(withFilter(
+                () => pubsub.asyncIterator(NEW_DIRECT_MESSAGE),
+                (payload, args,{ user }) => 
+                    (payload.teamId === args.teamId) && 
+                        ((payload.senderId === user.id && payload.receiverId === args.userId) || 
+                        (payload.senderId === args.userId && payload.receiverId === user.id))
+            ))
+        }
+    },
 
     DirectMessage: {
         sender :({ sender, senderId},args,{ models }) => {
@@ -42,24 +57,21 @@ export default {
                     senderId : user.id
                 })
                 
-                // const asyncFetch = async () => {
-                //     const currentUser = await models.User.findOne({
-                //         where: {
-                //             id: user.id
-                //         }
-                //     })
+           
 
-                //     pubsub.publish(NEW_CHANNEL_MESSAGE,
-                //         {
-                //             channelId: args.channelId,
-                //             newChannelMessage: {
-                //                 ...message.dataValues,
-                //                 user: currentUser.dataValues
-                //             }
-                //         })
-                // }
-                // asyncFetch()
-
+                pubsub.publish(NEW_DIRECT_MESSAGE,
+                    {
+                        teamId: args.teamId,
+                        senderId: user.id,
+                        receiverId: args.receiverId,
+                        newDirectMessage: {
+                            ...directMessage.dataValues,
+                            sender:{
+                                username: user.username
+                            }
+                        }
+                    })
+                
                 return true
             } catch(err){
                 console.log(err)

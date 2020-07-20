@@ -12,7 +12,7 @@ import DirectMessageContainer from '../containers/DirectMessageContainer'
 
 const ViewTeam= ({ 
     mutate,
-    data:{ loading , me },
+    data:{ loading , me,getUser },
     match:{ params: { teamId , userId } }
 })=> {
     if (loading){
@@ -42,19 +42,44 @@ const ViewTeam= ({
                 id: t.id,
                 letter: t.name.charAt(0).toUpperCase(),
             }))} team= {team} username= {username}></Sidebar>
-        <Header channelName = {"Someone's Username"}></Header>
+        <Header channelName = {getUser.username}></Header>
         
-        <DirectMessageContainer teamId ={teamIdInteger} otherUserId= { otherUserId }></DirectMessageContainer>
+        <DirectMessageContainer teamId ={team.id} userId= { otherUserId }></DirectMessageContainer>
         
-        <SendMessage placeholder={userId} 
+        <SendMessage placeholder={getUser.username} 
                     onSubmit={ async (text)=>{
                         await mutate({
                             variables: {
                                 text: text,
                                 receiverId: otherUserId,
                                 teamId: teamIdInteger
+                            },
+                            optimisticResponse: {
+                                createDirectMessage: true
+                            },
+                            update: (store) => {
+                                const data= store.readQuery({ query: meQuery });
+                                const teamIdx2 = findIndex(data.me.teams, ['id', team.id]);
+                                
+                                const notAlreadyThere = data.me.teams[teamIdx2].directMessageMembers.every(member => member.id !== parseInt(userId,10))
+                                const deepClone = JSON.parse(JSON.stringify(data));
+                                console.log('not exist?',notAlreadyThere)
+                                if (notAlreadyThere)
+                                    {
+                                       
+                                        deepClone.me.teams[teamIdx2].directMessageMembers.push({
+                                            __typename:"User",
+                                            id: userId,
+                                            username: getUser.username,
+                                        });
+
+                                        store.writeQuery({ query: meQuery, data: deepClone });
+                                        
+                                    }
+
+                                
                             }
-                        })
+                        });
                     }}></SendMessage>
 
     </AppLayout>)
@@ -65,8 +90,37 @@ const crearteDirectMessageMutation = gql`
     createDirectMessage(receiverId: $receiverId, text: $text, teamId: $teamId)
   }
 `
+const directMessageMeQuery = gql`
+  query ($userId : Int!) {
+    getUser(userId: $userId){
+        username
+    }
+    me{
+        id
+        username
+        teams {
+            id
+            name
+            admin
+            directMessageMembers {
+                id
+                username
+            }
+            channels {
+                id
+                name
+            }
+        }
+    }   
+  }
+`
 
 export default compose( 
     graphql(crearteDirectMessageMutation),
-    graphql( meQuery, { options: { fetchPolicy: 'network-only' } })
+    graphql( directMessageMeQuery, {  
+        options: props => ({ 
+            variables : { userId: parseInt(props.match.params.userId,10)},                            
+            fetchPolicy : 'network-only' 
+            })
+        })
 )(ViewTeam);

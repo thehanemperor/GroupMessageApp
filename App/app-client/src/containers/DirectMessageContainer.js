@@ -7,44 +7,45 @@ import {Comment} from 'semantic-ui-react'
 
 
 class DirectMessageContainer extends React.Component{
-    // componentWillMount(){
-    //     this.unsubscribe = this.subscribe(this.props.channelId);
-    // }
+    componentWillMount(){
+        this.unsubscribe = this.subscribe(this.props.teamId, this.props.userId);
+    }
 
-    // // subscribe when switch props
+    // subscribe when switch props
 
-    // componentWillReceiveProps({channelId}){
-    //     if (this.props.channelId !== channelId){
-    //         console.log('different channel')
-    //         if (this.unsubscribe){
-    //             this.unsubscribe()
-    //         }
-    //         this.unsubscribe= this.subscribe(channelId)
-    //     }
-    // }
+    componentWillReceiveProps({teamId,userId}){
+        if (this.props.teamId !== teamId || this.props.userId !== userId){
+            console.log('different user or team')
+            if (this.unsubscribe){
+                this.unsubscribe()
+            }
+            this.unsubscribe= this.subscribe(teamId,userId)
+        }
+    }
 
-    // componentWillUnmount(){
-    //     if (this.unsubscribe){
-    //         this.unsubscribe()
-    //     }
-    // }
+    componentWillUnmount(){
+        if (this.unsubscribe){
+            this.unsubscribe()
+        }
+    }
 
-    // subscribe = (channelId)=>
-    //     this.props.data.subscribeToMore({
-    //         document: newChannelMessageSubscription,
-    //         variables:{
-    //             channelId: channelId
-    //         },
-    //         updateQuery: (prev,{ subscriptionData })=> {
-    //             if (!subscriptionData){
-    //                 return prev
-    //             }
-    //             return {
-    //                 ...prev,
-    //                 messages: [...prev.messages,subscriptionData.newChannelMessage]
-    //             }
-    //         }
-    //     })
+    subscribe = (teamId, userId)=>
+        this.props.data.subscribeToMore({
+            document: newDirectMessageSubscription,
+            variables:{
+                teamId: teamId,
+                userId: userId
+            },
+            updateQuery: (prev,{ subscriptionData })=> {
+                if (!subscriptionData){
+                    return prev
+                }
+                return {
+                    ...prev,
+                    directMessages: [...prev.directMessages,subscriptionData.newDirectMessage]
+                }
+            }
+        })
     
 
     render(){
@@ -76,8 +77,20 @@ class DirectMessageContainer extends React.Component{
 }}
 
 const directMessagesQuery = gql `
-    query($teamId: Int!, $otherUserId: Int!){
-        directMessages(teamId: $teamId, otherUserId:$otherUserId){
+    query($teamId: Int!, $userId: Int!){
+        directMessages(teamId: $teamId, otherUserId:$userId){
+            id
+            sender{
+                username
+            }
+            text
+            created_at
+        }
+    }
+`
+const newDirectMessageSubscription = gql`
+    subscription($teamId: Int!, $userId: Int!){
+        newDirectMessage(teamId : $teamId, userId: $userId){
             id
             sender{
                 username
@@ -89,12 +102,13 @@ const directMessagesQuery = gql `
 `
 
 export default graphql(directMessagesQuery,{
-    variables: props => ({
+    
+    options: props=>({
+        fetchPolicy: 'network-only',
+        variables:  {
         
-        teamId: props.teamId,
-        otherUserId: props.otherUserId
-    }),
-    options: {
-        fetchPolicy: 'network-only'
-    }
+            teamId: props.teamId,
+            userId: props.userId
+        },
+    })
 })( DirectMessageContainer)
