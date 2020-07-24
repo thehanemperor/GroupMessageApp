@@ -60,11 +60,11 @@ export default {
         //createTeam: (parent,args,{models}) => models.
         createTeam: requiresAuth.createResolver( async(parent,args ,{models,user}) =>{
             try{
-                const response = await models.sequelize.transaction( async ()=>{
-                    const team = await models.Team.create({...args});
+                const response = await models.sequelize.transaction( async (transaction)=>{
+                    const team = await models.Team.create({...args},{transaction});
                     // to increase speed we omit await
-                    await models.Channel.create({name:'general',public:true, teamId: team.id})
-                    await models.Member.create({teamId: team.id, userId:user.id, admin:true})
+                    await models.Channel.create({name:'general',public:true, teamId: team.id},{transaction})
+                    await models.Member.create({teamId: team.id, userId:user.id, admin:true},{transaction})
                     return team
                 })
                 

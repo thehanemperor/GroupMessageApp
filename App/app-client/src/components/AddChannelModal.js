@@ -6,8 +6,12 @@ import {compose, graphql} from 'react-apollo'
 import { meQuery } from '../graphql/team'
 import findIndex from 'lodash/findIndex'
 
-const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSubmit,isSubmitting })=> (
-    <Modal open={open} onClose= {onClose}>
+//withformik higher model passes resetForm 
+const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSubmit,isSubmitting,resetForm})=> (
+    <Modal open={open} 
+            onClose= {(e)=> {
+                resetForm()
+                onClose(e)}}>
 
         <Modal.Header>Add Channel</Modal.Header>
         <Modal.Content>
@@ -22,7 +26,10 @@ const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSu
                 </Form.Field>
                 <Form.Group widths='equal'>
                     
-                    <Button disabled={isSubmitting} onClick={onClose} fluid>Cancel</Button>
+                    <Button disabled={isSubmitting} 
+                            onClick={(e)=> { 
+                                    resetForm()
+                                    onClose(e)}} fluid>Cancel</Button>
                     <Button disabled={isSubmitting} onClick={handleSubmit} fluid>Create Channel </Button>
                 
                 </Form.Group>

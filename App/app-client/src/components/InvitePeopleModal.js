@@ -76,7 +76,12 @@ export default compose(
             setSubmitting (false)
         }else{
             setSubmitting(false)
-            setErrors(normalizeErrors(errors))
+            
+            
+            setErrors(normalizeErrors(errors.map(e => e.message ==='user_id must be unique' ? ({
+                    path: 'email',
+                    message: 'this user is existed in the team'
+            }):e)))
         }
         
         
