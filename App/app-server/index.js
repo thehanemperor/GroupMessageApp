@@ -17,7 +17,7 @@ import {createServer } from 'http'
 import { execute, subscribe} from 'graphql'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { create } from 'domain'
-
+import formidable from 'formidable'
 
 const SECRET = 'jsidfniejisernfidsner'
 const SECRET2 = 'jifjdisnfiesseresder'
@@ -54,11 +54,42 @@ const addUser= async (req,res,next)=> {
     next()
 }
 
+const uploadDir = 'files'
+const fileMiddleware = (req,res,next)=>{
+    if (!req.is('multipart/form-data')) return next()
+    
+    const form = formidable.IncomingForm({
+        uploadDir,
+    })
+    form.parse(req,(error,{operations},files)=> {
+        if (error) 
+        {
+            console.log(error)
+        }
+        const document = JSON.parse(operations)
+        if (Object.keys(files).length){
+            const { file:{ type:type, path: filepath} } = files
+            console.log('file type',type)
+            console.log('file path',filepath)
+            document.variables.file = {
+                type: type,
+                path: filepath,
+            }
+        }  
+        
+        req.body = document
+        console.log('documents',req.body)
+        next()
+    })
+
+}
+
 app.use(addUser)
 
 app.use(
     graphqlEndpoint,
     bodyParser.json(),
+    fileMiddleware,
     graphqlExpress(req =>({
         schema:schema,
         context:{

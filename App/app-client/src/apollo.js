@@ -1,14 +1,13 @@
 import { ApolloClient } from 'apollo-client';
-import { createHttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { setContext } from 'apollo-link-context';
 import { ApolloLink, split } from 'apollo-link';
 import { WebSocketLink } from 'apollo-link-ws'
 import {getMainDefinition } from 'apollo-utilities'
-
+import createFileLink from './createFileLink'
 //const backup = 'http://192.168.1.6:8080/graphql'
 const localhost ='http://localhost:8080/graphql'
-const httpLink = createHttpLink({uri: localhost})
+const httpLink = createFileLink({uri: localhost})
 
 //middleware running before the graphql request
 // for authentication

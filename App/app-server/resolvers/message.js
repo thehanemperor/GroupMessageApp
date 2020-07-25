@@ -31,10 +31,17 @@ export default {
     },
 
     Mutation: {
-        createMessage: requireAuth.createResolver(async (parent,args,{models,user}) => {
+        createMessage: requireAuth.createResolver(async (parent,{ file ,...args },{models,user}) => {
             try{
+                console.log('message resolver files',file)
+                const messageData = args;
+                if (file){
+                    messageData.filetype = file.type;
+                    messageData.url = file.path
+                }
+                
                 const message= await models.Message.create({
-                    ...args,
+                    ...messageData,
                     userId : user.id
                 })
                 

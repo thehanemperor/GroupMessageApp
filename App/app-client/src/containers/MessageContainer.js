@@ -3,7 +3,7 @@ import Messages from '../components/Messages'
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import {Comment} from 'semantic-ui-react'
-
+import FileUpload from '../components/FileUpload'
 const newChannelMessageSubscription = gql`
     subscription($channelId: Int!){
         newChannelMessage(channelId: $channelId){
@@ -59,9 +59,11 @@ class MessageContainer extends React.Component{
     
 
     render(){
-         const {data:{loading,messages}} = this.props
+         const {data:{loading,messages},channelId} = this.props
          return loading ? null : (
-            <Messages >
+             
+                <Messages >
+                    <FileUpload channelId={channelId} disableClick>
                 <Comment.Group>
                     {messages.map(m=> (
                         <Comment key={`${m.id}-message`}>
@@ -79,7 +81,7 @@ class MessageContainer extends React.Component{
                         </Comment>
                     ))}
                 </Comment.Group>
-                
+                </FileUpload>
 
             </Messages>
 
