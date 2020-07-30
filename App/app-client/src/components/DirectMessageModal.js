@@ -1,64 +1,55 @@
 import React from 'react'
-import {Form,Input,Button, Modal} from 'semantic-ui-react'
-import Downshift from 'downshift'
-import gql from 'graphql-tag'
-import {graphql} from 'react-apollo'
+import { Form, Button, Modal} from 'semantic-ui-react'
+import { graphql,compose } from 'react-apollo'
 import {withRouter} from 'react-router-dom'
+import {withFormik } from 'formik'
+import MultiSelectUsers from './MultiSelectUsers'
+import gql from 'graphql-tag'
+import { meQuery } from '../graphql/team'
+import findIndex from 'lodash/findIndex'
 
 const DirecMessageModal = ({ 
-    history,open, onClose, teamId, data: {loading, getTeamMembers}})=> (
+    open, 
+    onClose,
+    values,
+    handleSubmit,
+    isSubmitting,
+    resetForm,
+    setFieldValue,  
+    teamId,  
+    currentUserId,
+    })=> (
     <Modal open={open} onClose= {onClose}>
 
-        <Modal.Header>Add Channel</Modal.Header>
+        <Modal.Header>Direct Message</Modal.Header>
         <Modal.Content>
             <Form>
                 <Form.Field>
-                {console.log('DM modal getTeamMembers',getTeamMembers)}
-                 {!loading && (
-                     
-                    <Downshift onChange={(selectedUser) => {
-                        history.push(`/view-team/user/${teamId}/${selectedUser.id}`)
-                        onClose()   
-                    } }>
-                    {
-                        ({
-                            getInputProps,
-                            getItemProps,
-                            isOpen,
-                            inputValue,
-                            highlightedIndex,
-                            selectedItem,
-                        }) =>(
-                            <div>
-                                <Input {...getInputProps({placeholder:'ffff ?'})} fluid></Input>
-                                {isOpen ? (
-                                    <div style={{border: '1px solid #ccc'}}>
-                                        {getTeamMembers
-                                            .filter(i => !inputValue || i.username.toLocaleLowerCase().includes(inputValue.toLocaleLowerCase()))
-                                            .map((item, index) => (
-                                                <div
-                                                  {...getItemProps({item})}
-                                                  key= {item.id}
-                                                    
-                                                  style= {
-                                                    {backgroundColor:
-                                                      highlightedIndex === index ? 'lightgray' : 'white',
-                                                    fontWeight: selectedItem === item ? 'bold' : 'normal',
-                                                  }}
-                                                >
-                                                  {item.username}
-                                                </div>
-                                              ))}
-                                    </div>
-                                    ): null}
-                            </div>
-                        )}
-
-                 </Downshift>)}
-            
-                </Form.Field>
+                    <MultiSelectUsers
+                        //value = {values.members}
+                        //handelChange = {(e,{ value }) => setFieldValue('members',value)}
+                        onChange = {
+                            (e,{ value }) => {
+                                //console.log('on change',value)
+                                setFieldValue('members',value)}}
+                        placeholder="Select Members to DM"
+                        currentUserId = {currentUserId}
+                        teamId = {teamId}>
+                    </MultiSelectUsers>
                     
-                <Button onClick={onClose} fluid>Cancel</Button>
+                </Form.Field>
+                <Form.Group>
+                    <Button 
+                        disabled={isSubmitting} 
+                        onClick={(e)=> {
+                            resetForm()
+                            onClose(e)
+                        }} 
+                        fluid
+                        >Cancel</Button>
+                    <Button disabled={ isSubmitting } onClick={handleSubmit} fluid>Start Messaging</Button>
+                </Form.Group>
+                
                 
             </Form>
             
@@ -66,13 +57,44 @@ const DirecMessageModal = ({
     </Modal>
 )
 
-const getTeamMembersQuery = gql`
-    query($teamId:Int!){
-        getTeamMembers(teamId: $teamId){
+
+const getOrCreateChannel = gql`
+    mutation($teamId:Int!, $members: [Int!]!){
+        getOrCreateChannel(teamId: $teamId, members: $members){
             id
-            username
+            name
         }
     }
 `;
+export default compose(
+    withRouter,
+    graphql(getOrCreateChannel),
+    withFormik({
+        mapPropsToValues: () => ({ members: []}),
+        handleSubmit: async({ members },{ props : { history, onClose, teamId, mutate }, setSubmitting,resetForm })=> {
+            const response = await mutate({ 
+                variables: { members, teamId},
+                update:(store, {data: { getOrCreateChannel }})=>{
+                        const { id,name }= getOrCreateChannel
+                        const data = store.readQuery({ query: meQuery });
+                        const teamIdx = findIndex(data.me.teams,['id',teamId])
+                        const deepClone = JSON.parse(JSON.stringify(data));
+                        const notInChannelList = deepClone.me.teams[teamIdx].channels.every(c => c.id !== id)
+                        console.log('dmModal deepclone',deepClone,'teamidx',teamIdx,id,name,)
+                        if (notInChannelList){
+                            
+                            deepClone.me.teams[teamIdx].channels.push({
+                                __typename: 'Channel',
+                                id:id, name:name,dm:true });
+                            store.writeQuery({query: meQuery,data:deepClone})
+                            }
+                        history.push(`/view-team/${teamId}/${id}`)
+                    },
+            })
+            
+        }
+    }),
+    )(DirecMessageModal)
 
-export default withRouter(graphql(getTeamMembersQuery)(DirecMessageModal))
+
+    

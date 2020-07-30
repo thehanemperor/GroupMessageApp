@@ -1,13 +1,16 @@
 export default (sequelize, DataTypes) => {
     const Channel = sequelize.define('channel', {
         name:{
-            type: DataTypes.STRING,
-            public: {
-                type:DataTypes.BOOLEAN,
-                defaultValue: true,
-            },
-            
+            type: DataTypes.STRING,  
         },
+        public: {
+            type:DataTypes.BOOLEAN,
+            defaultValue: true,
+        },
+        dm: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        }
     },{
         charset: 'utf8',
         collate: 'utf8_unicode_ci'
@@ -24,7 +27,12 @@ export default (sequelize, DataTypes) => {
                 name:'channelId',
                 field:'channel_id'},
         });
-        
+        Channel.belongsToMany(models.User,{
+            through: models.PCMember,
+            foreignKey: {
+                name:'channelId',
+                field:'channel_id'},
+        });
      
     };
   

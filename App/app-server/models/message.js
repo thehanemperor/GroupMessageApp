@@ -7,6 +7,11 @@ export default (sequelize, DataTypes) => {
         filetype:{type: DataTypes.STRING}, 
       
     },{
+        indexes: [
+            {
+                fields: ['created_at']
+            }
+        ],
         charset: 'utf8',
         collate: 'utf8_unicode_ci'
       });

@@ -113,9 +113,11 @@ app.use('/graphiql',
         )
     );
 
+app.use('/files',express.static('files'))
+
 const server = createServer(app)
 
-models.sequelize.sync({force: false}).then(()=> {
+models.sequelize.sync({ force: false }).then(()=> {
     server.listen(8080,()=>{
         new SubscriptionServer(
             {

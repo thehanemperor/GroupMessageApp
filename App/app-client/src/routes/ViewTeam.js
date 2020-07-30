@@ -15,7 +15,7 @@ const ViewTeam= ({
     data:{ loading , me },
     match:{ params: { teamId , channelId } }
 })=> {
-    if (loading){
+    if (loading || !me ){
         return null
     }
     
@@ -24,8 +24,7 @@ const ViewTeam= ({
     // }else{
     //     var teams = [...allTeams, ...inviteTeams]
     // }
-
-    const {username,teams} = me
+    const {id:currentUserId, username,teams} = me
     
     
     if (!teams.length){
@@ -43,10 +42,15 @@ const ViewTeam= ({
     
     return (
     <AppLayout>
-        <Sidebar teams={teams.map(t=>({
-                id: t.id,
-                letter: t.name.charAt(0).toUpperCase(),
-            }))} team= {team} username= {username}></Sidebar>
+        <Sidebar 
+            teams={teams.map(t=>({
+                    id: t.id,
+                    letter: t.name.charAt(0).toUpperCase(),
+                }))} 
+            team= {team} 
+            username= {username}
+            currentUserId = {currentUserId}
+            ></Sidebar>
         {channel && <Header channelName = {channel.name}></Header>}
         {channel && (
             <MessageContainer channelId = {channel.id}></MessageContainer>

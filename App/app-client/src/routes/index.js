@@ -13,7 +13,7 @@ import Test from './Test';
 import CreateTeam from './CreateTeam';
 import ViewTeam from './ViewTeam'
 import decode from 'jwt-decode'
-import DirectMessages from './DirectMessages';
+
 
 
 const isAuthenticated =()=>{
@@ -22,7 +22,10 @@ const isAuthenticated =()=>{
 
   try{
     decode(token)
-    decode(refreshToken);
+    const { exp } = decode(refreshToken);
+    if (Date.now()/1000 > exp){
+      return false
+    }
   }catch (err){
     return false
   }
@@ -54,7 +57,6 @@ export default ()=> (
         <Route path="/register" exact component = {Register} />
         <Route path="/login" exact component = {Login} />
         <PrivateRoute path="/create-team" exact component ={CreateTeam}/>
-        <PrivateRoute path="/view-team/user/:teamId/:userId" exact component={DirectMessages}/>
         <PrivateRoute path="/view-team/:teamId?/:channelId?" exact component={ViewTeam}/>
         <Route path="/test" exact component = {Test}/>
     </Switch>

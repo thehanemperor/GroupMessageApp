@@ -9,7 +9,7 @@ const SendMessageWrapper= styled.div `
     grid-column: 3;
     padding: 20px;
     display: grid;
-    grid-template-columns: 5% auto;
+    grid-template-columns: 50px auto;
     
     
 `

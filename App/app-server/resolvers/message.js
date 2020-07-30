@@ -15,6 +15,7 @@ export default {
     },
 
     Message: {
+        url: parent => parent.url ? `http://localhost:8080/${parent.url}`: parent.url,
         user :({user,userId },args,{ models }) => {
             if (user){
                 return user
@@ -25,8 +26,27 @@ export default {
         
     },
     Query:{
-        messages: requireAuth.createResolver(async(parent,{channelId},{models})=> 
-            models.Message.findAll({order: [['created_at','ASC']] , where:{channelId}},{raw: true})
+        messages: requireAuth.createResolver(async(parent,{ cursor, channelId },{models,user})=> 
+            {
+                const channel = await models.Channel.findOne({raw: true, where: {id : channelId}})
+                if (!channel.public){
+                    const member = await models.PCMember.findOne({ raw: true, where: { channelId: channelId, userId: user.id}})
+                    if (!member){
+                        throw new Error('Not Authenticated')
+                    }
+                }
+                const options = {
+                    order: [['created_at','DESC']] ,
+                    where:{channelId}, 
+                    limit: 30
+                };
+                console.log('message resolver cursor',cursor) 
+                if (cursor){
+                    options.where.created_at = {
+                        [models.op.lt]: cursor
+                    }
+                }
+                return models.Message.findAll(options, {raw: true})}
            )
     },
 

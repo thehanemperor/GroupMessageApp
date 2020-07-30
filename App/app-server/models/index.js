@@ -15,8 +15,8 @@ const models = {
     Member: sequelize.import('./member'),
     Message : sequelize['import']('./message'),
     Team : sequelize['import']('./team'),
-    DirectMessage: sequelize.import('./directMessage')
-
+    DirectMessage: sequelize.import('./directMessage'),
+    PCMember: sequelize.import('./pcmember'),
 }
 
 
@@ -29,5 +29,6 @@ Object.keys(models).forEach(modelName => {
 
 models.sequelize = sequelize;
 models.Sequelize = Sequelize;
+models.op = Sequelize.Op
 
 export default models;

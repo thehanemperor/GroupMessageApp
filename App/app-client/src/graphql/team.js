@@ -16,8 +16,17 @@ export const meQuery = gql`
             channels{
                 id
                 name
+                dm
             }
         }
     } 
 }
 `
+export const getTeamMembersQuery = gql`
+query($teamId:Int!){
+    getTeamMembers(teamId: $teamId){
+        id
+        username
+    }
+}
+`;

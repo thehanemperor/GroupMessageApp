@@ -1,13 +1,26 @@
 import React from 'react'
-import {Form,Input,Button, Modal} from 'semantic-ui-react'
+import {Form,Input,Button, Modal,Checkbox} from 'semantic-ui-react'
 import {withFormik} from 'formik'
 import gql from 'graphql-tag'
 import {compose, graphql} from 'react-apollo'
 import { meQuery } from '../graphql/team'
 import findIndex from 'lodash/findIndex'
+import MultiSelectUsers from './MultiSelectUsers'
 
 //withformik higher model passes resetForm 
-const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSubmit,isSubmitting,resetForm})=> (
+const AddChannelModal = ({ 
+    open, 
+    onClose,
+    values,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    isSubmitting,
+    resetForm,
+    setFieldValue,  
+    teamId,  
+    currentUserId,
+})=> (
     <Modal open={open} 
             onClose= {(e)=> {
                 resetForm()
@@ -24,6 +37,29 @@ const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSu
                  fluid placeholder="channelName"></Input>
             
                 </Form.Field>
+                <Form.Field>
+                    <Checkbox 
+                        checked={!values.public} 
+                        label="Private" 
+                        onChange={(e,{checked})=> setFieldValue('public',!checked)}
+                        toggle>
+                    </Checkbox>
+                </Form.Field>
+                {values.public ? null: ( 
+                <Form.Field>
+                    <MultiSelectUsers
+                        //value = {values.members}
+                        //handelChange = {(e,{ value }) => setFieldValue('members',value)}
+                        onChange = {
+                            (e,{ value }) => {
+                                //console.log('on change',value)
+                                setFieldValue('members',value)}}
+                        placeholder="Select Members"
+                        currentUserId = {currentUserId}
+                        teamId = {teamId}>
+                    </MultiSelectUsers>
+                </Form.Field>)}
+               
                 <Form.Group widths='equal'>
                     
                     <Button disabled={isSubmitting} 
@@ -40,12 +76,13 @@ const AddChannelModal = ({ open, onClose,values,handleChange,handleBlur,handleSu
 )
 
 const createChannelMutation = gql`
-    mutation($teamId: Int!, $name: String!){
-        createChannel(teamId:$teamId, name:$name){
+    mutation($teamId: Int!, $name: String!, $public: Boolean, $members: [Int!]){
+        createChannel(teamId:$teamId, name:$name, public: $public, members: $members){
             ok
             channel{
                 id
                 name
+                dm
             }
         }
     }
@@ -55,29 +92,30 @@ const createChannelMutation = gql`
 export default compose(
     graphql(createChannelMutation),
     withFormik({
-    mapPropsToValues: () => ({name:''}),
+    mapPropsToValues: () => ({name:'', public: true, members: []}),
     handleSubmit: async(values,{props:{onClose,teamId,mutate},setSubmitting })=> {
         
 
         // teamId is from sidebar mutate is from higer order func
         let teamInt = parseInt(teamId,10)
-        console.log('add channel teamId',teamInt,typeof(teamInt))
         
+        console.log('is public',values.public,'members',values.members)
         await mutate({
-            variables : {teamId: teamInt,name:values.name},
-            // optimisticResponse: {
+            variables : {teamId: teamInt, name:values.name , public: values.public, members: values.members},
+            optimisticResponse: {
                 
-            //     createChannel:{
-            //         __typename: 'Mutation',
-            //         ok: true,
-            //         channel:{
-            //             __typename:'Channel',
-            //             id: -1,
-            //             name: values.name
-            //         }
+                createChannel:{
+                    __typename: 'Mutation',
+                    ok: true,
+                    channel:{
+                        __typename:'Channel',
+                        id: -1,
+                        name: values.name,
+                        dm: false,
+                    }
                     
-            //     }
-            // },
+                }
+            },
             update: (store,{data:{createChannel}}) => {
                 const {ok,channel} = createChannel
                 if (!ok){
