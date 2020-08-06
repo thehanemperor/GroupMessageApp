@@ -15,7 +15,9 @@ export default {
     },
 
     Message: {
-        url: parent => parent.url ? `http://localhost:8080/${parent.url}`: parent.url,
+        
+        url: (parent, args, {serverUrl}) => parent.url ? `http://localhost:8080/${parent.url}`: parent.url,
+        //({id},args,{ channelLoader})=> channelLoader.load(id),
         user :({user,userId },args,{ models }) => {
             if (user){
                 return user

@@ -5,6 +5,7 @@ import Teams from '../components/Teams'
 import AddChannelModal from '../components/AddChannelModal'
 import InvitePeopleModal  from '../components/InvitePeopleModal'
 import DirectMessageModal  from '../components/DirectMessageModal'
+import UserStatus from '../components/UserStatus'
 
 
 export default class Sidebar extends React.Component{
@@ -84,7 +85,8 @@ render(){
             teamId = {team.id}
             onClose= {this.toggleInvitePeopleModal}
             open = {openInvitePeopleModal} key= "sidebar-invite-people-modal">
-            </InvitePeopleModal>
+            </InvitePeopleModal>,
+            <UserStatus key={`user-${username}`} userName= {username}></UserStatus>
         ]
     }
 }

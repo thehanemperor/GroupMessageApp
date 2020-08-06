@@ -1,13 +1,4 @@
-import styled from 'styled-components'
-
-// export default styled.div `
-
-//     display: grid;
-//     height: 100vh;
-//     grid-template-columns: 100px 250px 1fr;
-//     grid-template-rows: auto 1fr auto;
-// `
-
+import styled from "styled-components";
 
 const size = {
   mobileS: "320px",
@@ -34,7 +25,7 @@ export default styled.div`
   background: #fff;
   display: grid;
   height: 100vh;
-  grid-template-columns: 100px 250px 1fr;
+  grid-template-columns: 72px 250px 1fr;
   grid-template-rows: auto 1fr auto;
   @media ${devices.tablet} {
     display: flex;

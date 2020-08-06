@@ -5,8 +5,9 @@ import { ApolloLink, split } from 'apollo-link';
 import { WebSocketLink } from 'apollo-link-ws'
 import {getMainDefinition } from 'apollo-utilities'
 import createFileLink from './createFileLink'
-//const backup = 'http://192.168.1.6:8080/graphql'
-const localhost ='http://localhost:8080/graphql'
+
+const localhost = 'http://192.168.1.10:8080/graphql'
+//const localhost ='http://localhost:8080/graphql'
 const httpLink = createFileLink({uri: localhost})
 
 //middleware running before the graphql request
@@ -44,15 +45,20 @@ const httpLinkWithMiddleware = afterwareLink.concat( middlewareLink.concat(httpL
 
 const sublink="ws://localhost:8080/subscriptions"
 //const sublinkBackUp ='ws://192.168.1.6:8080/subscriptions'
-const wsLink = new WebSocketLink({
+export const wsLink = new WebSocketLink({
 
     uri: sublink,
     options: {
         reconnect: true,
-        connectionParams: {
-            token: localStorage.getItem('token'),
-            refreshToken: localStorage.getItem('refreshToken')
-        }
+        lazy: true,
+        connectionParams: ()=> ({
+            token: 
+                
+                localStorage.getItem('token'),
+            refreshToken: 
+               
+                localStorage.getItem('refreshToken')
+        })
     }
 })
 
@@ -67,6 +73,6 @@ const link = split(
 )
 
 export default new ApolloClient({
-    link,
+    link:link,
     cache: new InMemoryCache(),
   })

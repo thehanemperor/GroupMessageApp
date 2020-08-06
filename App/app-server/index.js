@@ -18,6 +18,8 @@ import { execute, subscribe} from 'graphql'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { create } from 'domain'
 import formidable from 'formidable'
+import Dataloader from 'dataloader'
+import { channelBatcher,userBatcher } from './batchFunctions'
 
 const SECRET = 'jsidfniejisernfidsner'
 const SECRET2 = 'jifjdisnfiesseresder'
@@ -97,6 +99,9 @@ app.use(
             user:req.user,
             SECRET,
             SECRET2,
+            channelLoader: new Dataloader((ids)=> channelBatcher( ids, models, req.user )),
+            //userLoader: new Dataloader((user,userIds) = userBatcher(models,user,userIds)),
+            serverUrl: `${req.protocol}://${req.get('host')}`,
         },
         
 

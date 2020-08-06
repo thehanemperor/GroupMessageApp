@@ -3,6 +3,10 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import {Comment } from 'semantic-ui-react'
 import FileUpload from '../components/FileUpload'
+import styled from "styled-components";
+import {VideoMessage,AudioMessage,ImageMessage,NormalMessage} from './MessageType'
+import MessageStyle  from './MessageStyle'
+
 const newChannelMessageSubscription = gql`
     subscription($channelId: Int!){
         newChannelMessage(channelId: $channelId){
@@ -17,44 +21,66 @@ const newChannelMessageSubscription = gql`
         }
     }
 ` 
-const fileStyle = {
-    gridColumn: '3',
-    gridRow: '2',
-    paddingLeft: '20px',
-    paddingRight: '20px',
-    display: 'flex',
-    flexDirection: 'column-reverse',
-    overflowY:'auto',
+const StyledIcon = styled.img`
+  border-radius: 50%;
+  margin-right: 10px;
+`;
+
+// const fileStyle = {
+//     gridColumn: '3',
+//     gridRow: '2',
+//     paddingLeft: '20px',
+//     paddingRight: '20px',
+//     display: 'flex',
+//     flexDirection: 'column-reverse',
+//     overflowY:'auto',
+// }
+
+const StyledDate = styled.span`
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+`;
+
+const ToISODate = ({time})=>{
+    
+    let digit = parseInt(time,10)
+    //console.log('timestring',time,typeof(time) ,digit)
+    const standardDate =  new Date(digit).toISOString()
+    return    <StyledDate>{standardDate}</StyledDate>
 }
 
 const Message = ({message:{url,text,filetype}})=>{
     if (url){
         if (filetype.startsWith('image/')){
-            return (<img className="ui medium rounded image" src={url} alt={url}></img>)
+            
+            return (<ImageMessage url={url} alt={url}></ImageMessage>)
         } else if (filetype.startsWith('audio/')){
             return(
-                <audio controls>
-                    <source src={url} type={filetype}></source>
-                </audio>
+                <AudioMessage url={url} filetype={filetype} />
             )
+        } else if (filetype.startsWith("video/")) {
+            return <VideoMessage url={url} filetype={filetype} />;
         }
         
     }
     
-    return (<Comment.Text>{text} </Comment.Text>)
+    return (<NormalMessage text={text} />)
 }
 
 class MessageContainer extends React.Component{
     state =  {
         hasMoreItems: true
     }
-    componentWillMount(){
+    UNSAFE_componentWillMount(){
+    //componentDidMount(){
         this.unsubscribe = this.subscribe(this.props.channelId);
     }
 
     // subscribe when switch props
 
-    componentWillReceiveProps({ data: { messages }, channelId }){
+    UNSAFE_componentWillReceiveProps({ data: { messages }, channelId }){
+    //componentDidUpdate({data: { messages }, channelId }) {
         if (this.props.channelId !== channelId){
             console.log('different channel')
             if (this.unsubscribe){
@@ -74,7 +100,10 @@ class MessageContainer extends React.Component{
                 //30 messages
                 const heightBefore = this.scroller.scrollHeight
                 setTimeout(()=>{
-                    this.scroller.scrolltop = this.scroller.scrollHeight - heightBefore
+                    if (this.scroller){
+                        this.scroller.scrolltop = this.scroller.scrollHeight - heightBefore
+                    }
+
                 }, 120)
         }
 
@@ -136,8 +165,8 @@ class MessageContainer extends React.Component{
     render(){
          const {data:{loading,messages },channelId} = this.props
          return loading ? null : (
-            <div 
-                style={fileStyle}
+            <MessageStyle
+                //style={fileStyle}
                 onScroll = { this.handleScroll }
                 ref = {(scroller) =>{
                     this.scroller = scroller
@@ -151,23 +180,51 @@ class MessageContainer extends React.Component{
                 <Comment.Group>
                     
                     {[...messages].reverse().map(m=> (
-                        <Comment key={`${m.id}-message`}>
-                            <Comment.Content>
-                                <Comment.Author as= "a">{m.user.username}</Comment.Author>
+                        <Comment 
+                            key={`${m.id}-message`}
+                            style={{
+                            padding: "15px 1rem",
+                            marginTop: "10px",
+                            //fontFamily: "AvenirNext, sans-serif",
+                            fontSize: "16px",
+                        }}>
+                            <Comment.Content 
+                                style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                justifyContent: "flex-start",
+                                }}>
+                                <StyledIcon
+                                className="ui mini image"
+                                src={`http://localhost:8080/files/avatar/${m.id % 4}.jpg`}
+                                />
+                                <div>
+                                <Comment.Author as= "a">
+                                    <span
+                                    style={{
+                                        //fontFamily: "AvenirNextDemi, sans-serif",
+                                        fontSize: "15px",
+                                    }}
+                                    >
+                                    {m.user.username}
+                                    </span>
+                                </Comment.Author>
                                 <Comment.Metadata>
-                                    <div>{m.created_at}</div>
+                                   <ToISODate time={m.created_at}></ToISODate> 
                                 </Comment.Metadata>
+                                <br></br>
                                 <Message message={m}></Message>
                                 <Comment.Actions>
                                     <Comment.Action>Reply</Comment.Action>
                                 </Comment.Actions>
+                                </div>
                             </Comment.Content>
 
                         </Comment>
                     ))}
                 </Comment.Group>
             </FileUpload>
-            </div>
+            </MessageStyle>
 
 
 );

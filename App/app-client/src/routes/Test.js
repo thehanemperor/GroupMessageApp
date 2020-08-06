@@ -5,17 +5,20 @@ class Test extends React.Component{
     
     render(){
         return(
-            <Container text>
+            <Container style={{paddingTop: '125px'}}>
+                <Container >
+                <video width="800" height="500" controls>
+                    
+                    <source src={`http://192.168.1.10:8080/files/videos\\1.mp4`} type={'video/mp4'} />
+                </video>
+                </Container>
                 <br/>
                 <br/>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
+               
                 <Header as="h2" >
-                    Hey Fuck you
+                    午夜付费直播-- 主播SWT  --TT
                 </Header>
-                <Button>Bitch</Button>
+                <Button>Bitch<span role="img" aria-label="sheep">🔞</span></Button>
             </Container>
         )
     } 

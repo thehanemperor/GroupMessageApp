@@ -5,7 +5,8 @@ export default class RenderText extends React.Component{
         text : ""
     }
 
-    componentWillMount = async ()=> {
+    UNSAFE_componentWillMount = async()=>{
+    //componentDidMount= async ()=> {
         const response = await fetch(this.props.url);
         const text = await response.text()
         this.setState({text: text})

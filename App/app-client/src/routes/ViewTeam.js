@@ -46,6 +46,7 @@ const ViewTeam= ({
             teams={teams.map(t=>({
                     id: t.id,
                     letter: t.name.charAt(0).toUpperCase(),
+                    name: t.name,
                 }))} 
             team= {team} 
             username= {username}
