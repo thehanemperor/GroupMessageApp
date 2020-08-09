@@ -4,6 +4,7 @@
 
   <img src="readMe.gif">
 </p>
+
 ## Basic Overview -
 This simple shopping cart prototype shows how React components GraphQL can be used to build a
 friendly user experience with instant visual updates and scaleable code in Messaging applications.
