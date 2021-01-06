@@ -11,7 +11,7 @@
   "author": "theHanEmperor",
   "license": "MIT",
   "devDependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-cli": "^6.26.0",
     "babel-jest": "^26.1.0",
     "babel-preset-env": "^1.7.0",
